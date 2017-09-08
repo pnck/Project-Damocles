@@ -1,4 +1,4 @@
-#define CQAPPID "pw.libc.Damocles" //请修改AppID
+#define CQAPPID "team.vidar.Damocles" //请修改AppID
 #define CQAPPINFO CQAPIVERTEXT "," CQAPPID
 
 #include "CqPyHandlerWrapper.h"
