@@ -5,18 +5,15 @@
 #ifndef PROJECT_DAMOCLES_CQPYHANDLERWRAPPER_H
 #define PROJECT_DAMOCLES_CQPYHANDLERWRAPPER_H
 
-//#include "C:\\Python27\include\Python.h"
-#include <python2.7/Python.h>
-#include <bits/shared_ptr.h>
 #include "stdafx.h"
-#include "cqp.h
+#include "C:\\Python27\include\Python.h"
+//#include <python2.7/Python.h>
+#include <memory>
+#include "cqp.h"
 #include "utils.h"
 #include "appmain.h"
 
-#define CQAPPID (__CQ_APPID__.c_str())
-#define CQAPPINFO (__CQ_APPINFO__.c_str())
-
-inline void CQ_MessageBox(const char *msg, const char *title) {
+inline void CQ_MessageBox(LPCTSTR msg, LPCTSTR title) {
     ::MessageBox(NULL, msg, title, MB_OK);
 }
 
@@ -203,6 +200,8 @@ struct ICqHandler
     virtual bool OnEvent_ReInit() = 0;
 protected:
     int32_t m_authCode;
+	ICqHandler():m_authCode(0){}
+	ICqHandler(int32_t authCode):m_authCode(authCode){}
 };
 
 
@@ -225,9 +224,8 @@ protected:
     bool m_enabled;
     static std::shared_ptr<ICqHandler> g_instance;//唯一实例
 protected://私有化构造函数以便单例化本类
-    CqHandler_Python27() : m_enabled(false), m_authCode(0) { }
-
-    CqHandler_Python27(int32_t authCode) : CqHandler_Python27(), m_authCode(authCode) { }
+    CqHandler_Python27() : ICqHandler(), m_enabled(false){ }
+	CqHandler_Python27(int32_t authCode) : ICqHandler(authCode),m_enabled(false) { }
 
 public:
     ~CqHandler_Python27() override = default;

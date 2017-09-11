@@ -25,3 +25,5 @@ extern std::string __SDK_MUTEX_NAME__;
 // TODO: reference additional headers your program requires here
 #include "stdint.h"
 #include "string"
+#include <tchar.h>
+#include <memory>

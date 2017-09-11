@@ -3,6 +3,7 @@
 #include "utils.h"
 #include "cqp.h"
 
+
 std::string __CQ_APPID__;
 std::string __CQ_APPINFO__;
 std::string __EVT_MUTEX_NAME__;

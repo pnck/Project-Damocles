@@ -2,6 +2,7 @@
 // Created by pcnk on 9/8/17.
 //
 
+#include "stdafx.h"
 #include "CqPyHandlerWrapper.h"
 
 
@@ -499,15 +500,15 @@ bool Python27Mixin::initialize() {
 
 
         PyObject *m = PyImport_ImportModule("CQHandler");
-        BREAK_IF_NULL(m, "Import CQHandler Module Failed")
+        BREAK_IF_NULL(m, _T("Import CQHandler Module Failed"))
 
         PyObject *d = PyModule_GetDict(m);
 
         PyObject *c = PyDict_GetItemString(d, "CQHandler");
-        BREAK_IF_NULL(c, "Load CQHandler Class Failed")
+        BREAK_IF_NULL(c, _T("Load CQHandler Class Failed"))
 
         m_PyHandler = PyObject_CallObject(c, NULL);
-        BREAK_IF_NULL(m_PyHandler, "Create CQHandler Instance Failed")
+        BREAK_IF_NULL(m_PyHandler, _T("Create CQHandler Instance Failed"))
 
         Py_XDECREF(c);
         Py_XDECREF(d);
@@ -774,13 +775,13 @@ bool CqHandler_Python27::OnEvent_ReInit() {
     return ret;
 }
 
-static std::shared_ptr<ICqHandler> CqHandler_Python27::g_instance = nullptr;//唯一实例
+std::shared_ptr<ICqHandler> CqHandler_Python27::g_instance = nullptr;//唯一实例
 
 std::shared_ptr<ICqHandler> CqHandler_Python27::GetPython27Handler(int32_t authCode) {
     EVENT_EXCLUSIVE;
     SDKCALL_EXCLUSIVE;
     if (!g_instance) {
-        struct __CqHandlerExposeConstructor final : public CqHandler_Python27 { };
+		struct __CqHandlerExposeConstructor final : public CqHandler_Python27 { __CqHandlerExposeConstructor(int32_t c) :CqHandler_Python27(c) {} };
         g_instance = std::make_shared<__CqHandlerExposeConstructor>(authCode);
     }
     return g_instance;

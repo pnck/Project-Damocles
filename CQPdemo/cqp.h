@@ -1,4 +1,4 @@
-/*
+﻿/*
 * CoolQ SDK for VC++ 
 * Api Version 9
 * Written by Coxxs & Thanks for the help of orzFly

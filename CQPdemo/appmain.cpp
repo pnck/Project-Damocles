@@ -1,4 +1,4 @@
-/*
+﻿/*
 * CoolQ Demo for VC++ 
 * Api Version 9
 * Written by Coxxs & Thanks for the help of orzFly
@@ -13,9 +13,10 @@
 #include <time.h>
 #include "appmain.h" //应用AppID等信息，请正确填写，否则酷Q可能无法加载
 #include <time.h>
+#include "CqPyHandlerWrapper.h"
 
 #include "C:\\Python27\include\Python.h"
-#include <python2.7/Python.h>
+//#include <python2.7/Python.h>
 #pragma comment(lib,"C:\\Python27\\libs\\python27.lib")
 
 std::shared_ptr<ICqHandler> g_CqHandler = nullptr;

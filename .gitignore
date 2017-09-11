@@ -1,2 +1,6 @@
 .idea*
 cmake-*
+.vs*
+*/*.vcxproj.user
+Release*
+CQPdemo/Release*
