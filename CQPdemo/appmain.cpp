@@ -15,9 +15,8 @@
 #include <time.h>
 #include "CqPyHandlerWrapper.h"
 
-#include "C:\\Python27\include\Python.h"
+//#include "C:\\Python27\include\Python.h"
 //#include <python2.7/Python.h>
-#pragma comment(lib,"C:\\Python27\\libs\\python27.lib")
 
 std::shared_ptr<ICqHandler> g_CqHandler = nullptr;
 int g_authCode = -1; //AuthCode 调用酷Q的方法时需要用到
@@ -47,6 +46,9 @@ CQEVENT(int32_t, Initialize, 4)(int32_t AuthCode) {
 * 如非必要，不建议在这里加载窗口。（可以添加菜单，让用户手动打开窗口）
 */
 CQEVENT(int32_t, __eventStartup, 0)() {
+	//char ss[200] = {};
+	//sprintf_s(ss, "CQEVENT(int32_t, __eventStartup, 0) AuthCode=%d, g_CqHandler=%p", g_authCode, g_CqHandler.get());
+	//CQ_addLog(g_authCode, CQLOG_INFO, "OnEvent", ss);
 	return g_CqHandler->OnEvent_Startup();
 	//return 0;
 }
@@ -179,7 +181,7 @@ CQEVENT(int32_t, __menuReInit, 0)() {
 	}
 	else
 	{
-		CQ_AddLog(CQLOG_FATAL, "重新初始化", "重新初始化失败");
+		CQ_AddLog(CQLOG_ERROR, "重新初始化", "重新初始化失败");
 	}
 	return 0;
 }

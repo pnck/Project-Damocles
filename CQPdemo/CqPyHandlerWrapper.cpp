@@ -5,6 +5,7 @@
 #include "stdafx.h"
 #include "CqPyHandlerWrapper.h"
 
+//#pragma comment(lib,"C:\\Python27\\libs\\python27.lib")
 
 std::string PyString_AsString_Ex(PyObject *s) {
     std::string ret;
@@ -80,7 +81,6 @@ static PyObject *CQSDK_SendGroupMsg(PyObject *self, PyObject *args) {
 
     PyObject *arg0 = PyTuple_GetItem(args, 0);
     PyObject *arg1 = PyTuple_GetItem(args, 1);
-
     int32_t ret = CQ_SendGroupMsg(
             PyLong_AsLongLong(arg0),
             PyString_AsString_Ex(arg1).c_str()
@@ -448,7 +448,7 @@ static PyMethodDef CQSDK_funcs[] =
 
 
 bool Python27Mixin::initialize() {
-#if 0
+#if 1
     os_delpuv("PYTHONDEBUG");
     os_delpuv("PYTHONHOME");
     os_delpuv("PYTHONOPTIMIZE");
@@ -490,8 +490,8 @@ bool Python27Mixin::initialize() {
 #endif
     Py_Initialize();
     Py_InitModule3("_CQSDK", CQSDK_funcs, NULL);
-    PyRun_SimpleString("import sys");
-    PyRun_SimpleString("sys.path.append('C:\\modules')");
+    //PyRun_SimpleString("import sys");
+    //PyRun_SimpleString("sys.path.append('C:\\modules')");
 
     int32_t ret = 0;
 
@@ -508,8 +508,11 @@ bool Python27Mixin::initialize() {
         BREAK_IF_NULL(c, _T("Load CQHandler Class Failed"))
 
         m_PyHandler = PyObject_CallObject(c, NULL);
-        BREAK_IF_NULL(m_PyHandler, _T("Create CQHandler Instance Failed"))
+		BREAK_IF_NULL(m_PyHandler, _T("Create CQHandler Instance Failed"));
 
+		char ss[100];
+		sprintf_s(ss, "pyhandler:%p", m_PyHandler);
+		CQ_AddLog(CQLOG_DEBUG, "debug", ss);
         Py_XDECREF(c);
         Py_XDECREF(d);
         Py_XDECREF(m);
@@ -522,7 +525,8 @@ void Python27Mixin::finalize() {
     Py_XDECREF(m_PyHandler);
     m_PyHandler = NULL;
     Py_Finalize();
-    //__FUnloadDelayLoadedDLL2("python27.dll");
+    __FUnloadDelayLoadedDLL2("python27.dll");
+	CQ_AddLog(CQLOG_DEBUG, "debug", "python27.dll unloaded");
 }
 
 int32_t CqHandler_Python27::OnEvent_Startup() {
@@ -536,9 +540,8 @@ int32_t CqHandler_Python27::OnEvent_Exit() {
 }
 
 int32_t CqHandler_Python27::OnEvent_Enable() {
-    m_enabled = true;
     int32_t ret = 0;
-
+	CQ_AddLog(CQLOG_INFO, "OnEvent", "OnEvent_Enable");
     if (this->initialize()) {
         PyObject *f = PyObject_GetAttrString_Ex(m_PyHandler, "OnEvent_Enable");
         if (f) {
@@ -548,6 +551,7 @@ int32_t CqHandler_Python27::OnEvent_Enable() {
             Py_XDECREF(f);
         }
     }
+	m_enabled = true;
     return ret;
 }
 
@@ -570,6 +574,7 @@ int32_t CqHandler_Python27::OnEvent_PrivateMsg(int32_t subType, int32_t sendTime
     EVENT_EXCLUSIVE;
     int32_t ret = EVENT_IGNORE;
     PyObject *f = PyObject_GetAttrString_Ex(m_PyHandler, "OnEvent_PrivateMsg");
+	CQ_AddLog(CQLOG_INFO, "OnEvent", "OnEvent_PrivateMsg,before pycall");
     if (f) {
         PyObject *args = PyTuple_New(5);
         PyTuple_SetItem(args, 0, subType);
@@ -579,6 +584,7 @@ int32_t CqHandler_Python27::OnEvent_PrivateMsg(int32_t subType, int32_t sendTime
         PyTuple_SetItem(args, 4, font);
 
         PyObject *r = PyObject_CallObject(f, args);
+		CQ_AddLog(CQLOG_INFO, "OnEvent", "OnEvent_PrivateMsg,after pycall");
         ret = PyLong_AsLong(r);
         Py_XDECREF(r);
         Py_XDECREF(f);
