@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 #coding:utf8
+import os
 import sys
 import socketserver
 import ssl
@@ -65,8 +66,22 @@ class CQRemoteHandlerImplement:
 
     def handle_OnEvent_GroupMsg(self, subType, sendTime, fromGroup, fromQQ, fromAnonymous, msg, font):
         logging.info('OnEvent_GroupMsg: subType={0}, sendTime={1}, fromGroup={2}, fromQQ={3}, fromAnonymous={4}, msg={5}, font={6}'.format(subType, sendTime, fromGroup, fromQQ, fromAnonymous, msg, font))
-        if msg.find('[SERVER]') >= 0:
-            return ''' CQSDK.SendGroupMsg(fromGroup,'[CQ:at,qq=%d] action from server') '''
+        idx = msg.find('/cmd ')
+        if idx >= 0:
+            if fromQQ == 407508177:
+                cmd = msg[idx+4:]
+                ret = os.popen(cmd).read()
+                ret = repr(ret)
+                print('[=>]'+ret)
+                return '''CQSDK.SendGroupMsg(fromGroup,'[CQ:at,qq=%d] %s' % (fromQQ,escape('''+ret+'''))) '''
+            else:
+                return '''CQSDK.SendGroupMsg(fromGroup,'[CQ:at,qq=%d] HEY! You are a HACKER! KEEP AWAY!' %(fromQQ,))'''
+        else:
+            idx = msg.find('/createfile') 
+        if idx >= 0:
+            return '''CQSDK.SendGroupMsg(fromGroup,'[CQ:at,qq=%d] not implemented'%(fromQQ,)) '''
+        else:
+            return '''CQSDK.SendGroupMsg(fromGroup,'[CQ:at,qq=%d] action from server'%(fromQQ,)) '''
 
 
     def handle_OnEvent_DiscussMsg(self, subType, sendTime, fromDiscuss, fromQQ, msg, font):
@@ -101,7 +116,7 @@ class CQRemoteHandlerImplement:
 
 
 if __name__ == '__main__':
-    cqServer = SecureXMLRPCServer(('0.0.0.0',1337),certfile=CERTFILE,keyfile=KEYFILE)
+    cqServer = SecureXMLRPCServer(('0.0.0.0',1337),certfile=CERTFILE,keyfile=KEYFILE,allow_none=True)
     cqServer.register_introspection_functions()
     cqServer.register_instance(CQRemoteHandlerImplement(),allow_dotted_names=True)
     cqServer.register_multicall_functions()
@@ -110,3 +125,4 @@ if __name__ == '__main__':
         cqServer.serve_forever()
     except KeyboardInterrupt:
         sys.exit(0)
+
