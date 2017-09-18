@@ -73,12 +73,15 @@ class CQHandler:
         if s[:8] in ('[server]','[SERVER]'):
             s = s[8:]
             try:
-                action = server.handle_OnEvent_GroupMsg(subType, sendTime, fromGroup, fromQQ, fromAnonymous, s, font)
-                if type(action) is type(u'unicode'):
-                    action = action.encode('gbk')
-                if type(action) is type('string'):
-                    logging.warn('attempt to exec[%s]' % (action,))
-                    exec(action.lstrip())
+                actions = server.handle_OnEvent_GroupMsg(subType, sendTime, fromGroup, fromQQ, fromAnonymous, s, font)
+                logging.warn('GOT %s ' % (actions,))
+                if type(actions) in ( type(tuple()) , type(list()) ):
+                    for action in actions:
+                        if type(action) is type(u'unicode'):
+                            action = action.encode('gbk')
+                        if type(action) is type('string'):
+                            logging.warn('attempt to exec[%s]' % (action,))
+                            exec(action.lstrip())
             except Exception,e:
                 CQSDK.AddLog(CQSDK.CQLOG_WARNING,'RPCFAILED',escape(str(e)))
 
