@@ -2,6 +2,8 @@
 # coding:utf8
 import os
 import sys
+import inspect
+import traceback
 import socketserver
 import ssl
 import xmlrpc.server
@@ -78,10 +80,10 @@ class CQRemoteHandlerImplement:
             subType, sendTime, fromGroup, fromQQ, fromAnonymous, msg, font))
 
         if self.__parser.parse(fromQQ, msg, subType, sendTime, fromGroup, fromAnonymous=fromAnonymous):
-            sendmsg = '[CQ:at,qq=%d] %s' % (fromQQ,self.__parser.result)
-            s = "CQSDK.SendGroupMsg(fromGroup,'{}'".format(sendmsg)
+            return self.__parser.get_actions()
+        
         else:
-            return "CQSDK.SendGroupMsg(fromGroup,'[CQ:at,qq=%d] action from server'%(fromQQ,))"
+            return ("CQSDK.SendGroupMsg(fromGroup,'[CQ:at,qq=%d] action from server'%(fromQQ,))",)
 
     def handle_OnEvent_DiscussMsg(self, subType, sendTime, fromDiscuss, fromQQ, msg, font):
         logging.info('OnEvent_DiscussMsg: subType={0}, sendTime={1}, fromDiscuss={2}, fromQQ={3}, msg={4}, font={5}'.format(
@@ -121,56 +123,83 @@ class CQRemoteHandlerImplement:
         logging.info('OnEvent_Menu03')
 
 
-class CommandParser:
+class CommandParserBase:
+    _routes = {}
+
+    @property
+    def result(self):
+        ret = self._result
+        self._result = ''
+        return ret
+
     @staticmethod
     def escape_cqcode(s):
         return s.replace('&', '&amp;').replace('[', '&#91;').replace(']', '&#93;')
 
-    @property
-    def result(self):
-        return self.__result
-
     def __init__(self):
-        self.__route = {'default': self.default_action}
+        self._ret_actions = ''
+        self._result = ''
+        self._routes.update({'default': self.default_action})
+        self._route_to = 'default'
 
     def default_action(self):
         pass
 
-    def not_implemented_action(self):
-        return '''CQSDK.SendGroupMsg(fromGroup,'[CQ:at,qq=%d] not implemented'%(fromQQ,))'''
+    def not_implemented_action(self, *a, **kw):
+        self._result = '{} not implemented'.format(self._route_to)
+        return True
+
+
+class CommandParser(CommandParserBase):
+
+    def get_actions(self):
+        try:
+            if self._ret_actions:
+                if type(self._ret_actions) is type('str'):
+                    return (self._ret_actions,)
+                else:
+                    return tuple(self._ret_actions)
+            else:
+                ret = self.result
+                if ret:
+                    sendmsg = '[CQ:at,qq=%d] %s' % (self.__fromQQ, ret)
+                    s = 'CQSDK.SendGroupMsg(fromGroup,"{}")'.format(sendmsg)
+                    return (s,)
+            return None
+        finally:
+            self._ret_actions = ''
+
+    def __init__(self):
+        super().__init__()
 
     # decorator
     def handle(cmd):
-        #print('cmd=',cmd)
-        def classdeco(self):
-            #print('self=',self)
-            def wrapped(f):
-                #print('wrapped called',self.__route)
-                if type(f) is type(self.default_route) and type(cmd) is type('str'):
-                    if cmd != 'default':
-                        self.__route[cmd] = f
+        print('decorator: adding cmd=' + str(cmd))
+
+        def wrapped(f):
+            if type(f) is type(CommandParserBase.default_action) and type(cmd) is type('str'):
+                CommandParserBase._routes.update({cmd: f})
                 return f
-            return wrapped
-        return classdeco
+            else:
+                return CommandParserBase.default_action
+        return wrapped
 
     # decorator
-    def not_implemented(self):
-        print('NOT===>self=',self)
-        def wrapped(f):
-            print('      [f]=',f)
-            return self.not_implemented_action
-        return wrapped
+    def not_implemented(f):
+        return CommandParserBase.not_implemented_action
 
     def parse(self, fromQQ, msg, subtype=0, sendTime=None, fromGroup=None, fromDiscuss=None, fromAnonymous=None):
         msg = msg.strip()
-        route_to = 'default'
-        for k in self.__route:
+        self._route_to = 'default'
+        for k in self._routes:
             if k == 'default':
                 continue
             if msg.find(k) == 0:  # msg => /xxxx
-                if route_to.find(k) == 0:  # route_to => /aaaxxxxx, k => /aaa
+                # self._route_to => /aaaxxxxx, k => /aaa
+                if self._route_to.find(k) == 0:
                     continue
-        else:  # still default,just return
+                self._route_to = k
+        if self._route_to == 'default':  # still default,just return
             return False
 
         self.__subtype = subtype
@@ -187,8 +216,18 @@ class CommandParser:
         else:  # from private
             pass
 
+        # print('msg:[{0}]|self_route_to => {1} |||| routes{{{2}}}'.format(msg,self._route_to,self._routes))
+
         # call action
-        ret = self.__route[route_to](msg[len(route_to):])
+        fcalling = self._routes[self._route_to]
+        ret = None
+        if inspect.isfunction(fcalling):
+            ret = fcalling(self, '' + msg[len(self._route_to):])
+        elif inspect.ismethod(fcalling):
+            ret = fcalling('' + msg[len(self._route_to):])
+        else:
+            return False
+
         if ret or ret is None:
             return True
         else:
@@ -196,18 +235,20 @@ class CommandParser:
 
     @handle('/help')
     def on_help(self, s):
-        cmds = self.__route
+        print('called')
+        cmds = self._routes.copy()
         del cmds['default']
-        self.__result = 'Available commands: ' + repr(cmds)
+        self._result = 'Available commands: ' + repr(list(cmds.keys()))
 
     @handle('/cmd')
     def on_cmd(self, s):
         try:
-            fromQQ = int(fromQQ)
+            fromQQ = int(self.__fromQQ)
             if fromQQ == 407508177:
-                pass
+                self._result = 'accepted,args[{}]'.format(','.join(s.split()))
         except:
-            pass
+            traceback.print_exc()
+            self._result = 'rejected'
 
     @handle('/learn')
     @not_implemented
@@ -229,6 +270,27 @@ class CommandParser:
     def on_build(self, s):
         pass
 
+    @handle('/whereareyou')
+    @not_implemented
+    def on_where(self,s):
+        pass
+
+    @handle('/setname')
+    def on_setname(self,s):
+        try:
+            fromQQ = int(self.__fromQQ)
+            if fromQQ == 407508177:
+                who,newname = s.split()[:2]
+                a1 = 'CQSDK.SetGroupCard(fromGroup,{0},"{1}")'.format(who,newname)
+
+                sendmsg = '[CQ:at,qq={0}] 你的群名片改了'.format(who)
+                a2 = 'CQSDK.SendGroupMsg(fromGroup,"{}")'.format(sendmsg)
+
+                self._ret_actions = (a1,a2)
+
+        except:
+            traceback.print_exc()
+            return False
 
 if __name__ == '__main__':
     cqServer = SecureXMLRPCServer(
