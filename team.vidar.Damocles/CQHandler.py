@@ -1,5 +1,5 @@
 #!/usr/bin/env python2
-# -*- coding:utf-8 -*-
+# -*- coding:gbk -*-
 import os
 import sys
 from random import seed,random
@@ -52,7 +52,14 @@ except Exception:
     print('-------------NOT GOOD----------')
     # sys.exit()
 
-
+def log_except(f):
+    def wrapped(*args,**kwargs):
+        try:
+            return f(*args,**kwargs)
+        except Exception, e:
+            CQSDK.AddLog(CQSDK.CQLOG_WARNING, 'EXCEPTION', escape(str(e)))
+    return wrapped
+    
 class CQHandler:
     def __init__(self):
         logging.info('__init__')
@@ -65,7 +72,8 @@ class CQHandler:
 
     def OnEvent_Disable(self):
         logging.info('OnEvent_Disable')
-
+    
+    @log_except
     def OnEvent_PrivateMsg(self, subType, sendTime, fromQQ, msg, font):
         logging.info('OnEvent_PrivateMsg: subType={0}, sendTime={1}, fromQQ={2}, msg={3}, font={4}'.format(
             subType, sendTime, fromQQ, msg, font))
@@ -82,7 +90,8 @@ class CQHandler:
             if s[:9] == '[forward]':
                 CQSDK.SendGroupMsg(
                     650591057, '&#91;forward from [CQ:at,qq=%d]&#93; %s' % (fromQQ, escape(s[9:])))
-
+    
+    @log_except
     def OnEvent_GroupMsg(self, subType, sendTime, fromGroup, fromQQ, fromAnonymous, msg, font):
         logging.info('OnEvent_GroupMsg: subType={0}, sendTime={1}, fromGroup={2}, fromQQ={3}, fromAnonymous={4}, msg={5}, font={6}'.format(
             subType, sendTime, fromGroup, fromQQ, fromAnonymous, msg, font))
@@ -93,34 +102,37 @@ class CQHandler:
                 fromQQ, escape('[ack]' + s)))
         elif s[:8] in ('[server]', '[SERVER]'):
             s = s[8:]
-            try:
-                actions = server.handle_OnEvent_GroupMsg(subType, sendTime, u'%s' % (
-                    fromGroup,), u'%s' % (fromQQ,), u'%s' % (fromAnonymous,), s.decode('gbk'), font)
-                logging.warn('GOT %s ' % (actions,))
-                if type(actions) in (type(tuple()), type(list())):
-                    for action in actions:
-                        if type(action) is type(u'unicode'):
-                            action = action.encode('gbk')
-                        if type(action) is type('string'):
-                            logging.warn('attempt to exec[%s]' % (action,))
-                            exec(action.lstrip())
-            except Exception, e:
-                CQSDK.AddLog(CQSDK.CQLOG_WARNING, 'RPCFAILED', escape(str(e)))
+            actions = server.handle_OnEvent_GroupMsg(subType, sendTime, u'%s' % (
+                fromGroup,), u'%s' % (fromQQ,), u'%s' % (fromAnonymous,), s.decode('gbk'), font)
+            logging.warn('GOT %s ' % (actions,))
+            if type(actions) in (type(tuple()), type(list())):
+                for action in actions:
+                    if type(action) is type(u'unicode'):
+                        action = action.encode('gbk')
+                    if type(action) is type('string'):
+                        logging.warn('attempt to exec[%s]' % (action,))
+                        exec(action.lstrip())
         else:
-            sendmsg = '[CQ:at,qq=%d] ' % (fromQQ,)
-            if KeywordChain('learn').check(s):
-                sendmsg += "如果想入门的话，还是要以c语言为基础。\n至于学习c语言最有效的还是看C primer plus。http://t.cn/RCP5AgV \nPS: 最好不要看谭浩强，XX天精通或者是从入门到精通系列 [CQ:face,id=21]"
-            elif KeywordChain('hack').check(s):
-                sendmsg += "国家刑法第二百八十六条规定，\n关于恶意利用计算机犯罪相关条文对于违反国家规定，对计算机信息系统功能进行删除、修改、增加、干扰，造成计算机信息系统不能正常运行，后果严重的，处五年以下有期徒刑或者拘役；后果特别严重的，处五年以上有期徒刑。\n违反国家规定，对计算机信息系统中存储、处理或者传输的数据和应用程序进行删除、修改、增加的操作，后果严重的，依照前款的规定处罚。",
-            elif KeywordChain('isa').check(s):
-                sendmsg += " 如果你是想问信息安全协会地址的话。是在一教（信仁楼）111，或者一教三楼“一教卖热狗”，还有科技馆613。\n欢迎随时过来[CQ:face,id=21]"
-            elif KeywordChain('reg').check(s):
-                sendmsg += "线上的报名地址: http://reg.vidar.club/ ，纸质在面试的时候带过来。\n推荐线上报名o(*^▽^*)┛[CQ:face,id=21]"
-            elif KeywordChain('dress').check(s):
-                sendmsg += "我给你10分钟去准备好你的女装"
-                CQSDK.SetGroupBan(fromGroup,fromQQ,10*60)
-            CQSDK.SendGroupMsg(fromGroup,sendmsg)
-
+            while True:
+                sendmsg = '[CQ:at,qq=%d] ' % (fromQQ,)
+                if KeywordChain('learn').check(s):
+                    sendmsg += "如果想入门的话，还是要以c语言为基础。\n至于学习c语言最有效的还是看C primer plus。http://t.cn/RCP5AgV \nPS: 最好不要看谭浩强，XX天精通或者是从入门到精通系列 [CQ:face,id=21]"
+                elif KeywordChain('hack').check(s):
+                    sendmsg += "国家刑法第二百八十六条规定，\n关于恶意利用计算机犯罪相关条文对于违反国家规定，对计算机信息系统功能进行删除、修改、增加、干扰，造成计算机信息系统不能正常运行，后果严重的，处五年以下有期徒刑或者拘役；后果特别严重的，处五年以上有期徒刑。\n违反国家规定，对计算机信息系统中存储、处理或者传输的数据和应用程序进行删除、修改、增加的操作，后果严重的，依照前款的规定处罚。"
+                elif KeywordChain('isa').check(s):
+                    sendmsg += " 如果你是想问信息安全协会地址的话。是在一教（信仁楼）111，或者一教三楼“一教卖热狗”，还有科技馆613。\n欢迎随时过来[CQ:face,id=21]"
+                elif KeywordChain('reg').check(s):
+                    sendmsg += "线上的报名地址: http://reg.vidar.club/ ，纸质在面试的时候带过来。\n推荐线上报名o(*^▽^*)┛[CQ:face,id=21]"
+                elif KeywordChain('dress').check(s):
+                    sendmsg += "我给你10分钟去准备好你的女装"
+                    CQSDK.SetGroupBan(fromGroup,fromQQ,10*60)
+                else:
+                    break
+                CQSDK.SendGroupMsg(fromGroup,sendmsg)
+                break
+        return True
+        
+        
     def OnEvent_DiscussMsg(self, subType, sendTime, fromDiscuss, fromQQ, msg, font):
         logging.info('OnEvent_DiscussMsg: subType={0}, sendTime={1}, fromDiscuss={2}, fromQQ={3}, msg={4}, font={5}'.format(
             subType, sendTime, fromDiscuss, fromQQ, msg, font))
@@ -132,16 +144,19 @@ class CQHandler:
     def OnEvent_System_GroupMemberDecrease(self, subType, sendTime, fromGroup, fromQQ, beingOperateQQ):
         logging.info('OnEvent_System_GroupMemberDecrease: subType={0}, sendTime={1}, fromGroup={2}, fromQQ={3}, beingOperateQQ={4}'.format(
             subType, sendTime, fromGroup, fromQQ, beingOperateQQ))
-
+    
+    
+    @log_except
     def OnEvent_System_GroupMemberIncrease(self, subType, sendTime, fromGroup, fromQQ, beingOperateQQ):
         logging.info('OnEvent_System_GroupMemberIncrease: subType={0}, sendTime={1}, fromGroup={2}, fromQQ={3}, beingOperateQQ={4}'.format(
             subType, sendTime, fromGroup, fromQQ, beingOperateQQ))
         seed(time())
-        i = (random*1000) % len(welcome_addional)
-        sendmsg = '[CQ:at,qq=%d]' % (fromQQ,)
+        i = int(random()*1000) % len(welcome_addional)
+        sendmsg = '[CQ:at,qq=%d]' % (beingOperateQQ,)
         sendmsg += "欢迎加入Vidar-Team2017届新生群\n请先阅读以下事项：\n1、协会官网: https://vidar.club \nwiki：https://wiki.vidar.club/doku.php \ndrops：https://drops.vidar.club/ \n2、为了让大家更好的相互了解，请先更改一下群名片。\n备注格式为17-专业-姓名\n3、如有任何疑问，请在群里艾特管理员提问 \n PS:"
         sendmsg += welcome_addional[i]
         CQSDK.SendGroupMsg(fromGroup,sendmsg)
+        
     def OnEvent_Friend_Add(self, subType, sendTime, fromQQ):
         logging.info('OnEvent_Friend_Add: subType={0}, sendTime={1}, fromQQ={2}'.format(
             subType, sendTime, fromQQ))
