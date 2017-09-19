@@ -210,7 +210,7 @@ class CommandParser(CommandParserBase):
                 ret = self.result
                 print('RET:=> ', ret)
                 if ret:
-                    sendmsg = '[CQ:at,qq=%d] %s' % (self.__fromQQ, ret)
+                    sendmsg = '[CQ:at,qq=%s] %s' % (self.__fromQQ, ret)
                     s = 'CQSDK.SendGroupMsg(fromGroup,"{}")'.format(sendmsg)
                     return (s,)
             return None
