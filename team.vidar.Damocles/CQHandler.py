@@ -2,6 +2,8 @@
 # -*- coding:utf-8 -*-
 import os
 import sys
+from random import seed,random
+from time import time
 
 reload(sys)
 sys.setdefaultencoding('gbk')
@@ -134,7 +136,12 @@ class CQHandler:
     def OnEvent_System_GroupMemberIncrease(self, subType, sendTime, fromGroup, fromQQ, beingOperateQQ):
         logging.info('OnEvent_System_GroupMemberIncrease: subType={0}, sendTime={1}, fromGroup={2}, fromQQ={3}, beingOperateQQ={4}'.format(
             subType, sendTime, fromGroup, fromQQ, beingOperateQQ))
-
+        seed(time())
+        i = (random*1000) % len(welcome_addional)
+        sendmsg = '[CQ:at,qq=%d]' % (fromQQ,)
+        sendmsg += "欢迎加入Vidar-Team2017届新生群\n请先阅读以下事项：\n1、协会官网: https://vidar.club \nwiki：https://wiki.vidar.club/doku.php \ndrops：https://drops.vidar.club/ \n2、为了让大家更好的相互了解，请先更改一下群名片。\n备注格式为17-专业-姓名\n3、如有任何疑问，请在群里艾特管理员提问 \n PS:"
+        sendmsg += welcome_addional[i]
+        CQSDK.SendGroupMsg(fromGroup,sendmsg)
     def OnEvent_Friend_Add(self, subType, sendTime, fromQQ):
         logging.info('OnEvent_Friend_Add: subType={0}, sendTime={1}, fromQQ={2}'.format(
             subType, sendTime, fromQQ))
