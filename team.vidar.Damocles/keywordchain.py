@@ -1,5 +1,5 @@
 #!/usr/bin/env python2
-# -*- coding:utf-8 -*-
+# -*- coding:gbk -*-
 
 import traceback
 import functools
@@ -13,9 +13,9 @@ import functools
 # #         _head: keyword chain begins with ...
 # #         _silence: do nothing when existing ...
 
-kw_isa_chain1_l1 = ('ä¿¡å®‰', 'ç½‘å®‰', 'ä¿¡æ¯å®‰å…¨', 'ç½‘ç»œå®‰å…¨', 'vidar')
-kw_isa_chain1_l2 = ('åä¼š', 'å®‰å', 'å®éªŒå®¤')
-kw_isa_chain1_l3 = ('å“ª', 'ä½ç½®', 'æ€ä¹ˆèµ°', 'åœ°å€', 'æ€ä¹ˆå»', 'å’‹å»')
+kw_isa_chain1_l1 = ('ĞÅ°²', 'Íø°²', 'ĞÅÏ¢°²È«', 'ÍøÂç°²È«', 'vidar')
+kw_isa_chain1_l2 = ('Ğ­»á', '°²Ğ­', 'ÊµÑéÊÒ')
+kw_isa_chain1_l3 = ('ÄÄ', 'Î»ÖÃ', 'ÔõÃ´×ß', 'µØÖ·', 'ÔõÃ´È¥', 'Õ¦È¥')
 kw_isa_trigger = kw_isa_chain1_l3
 kw_isa_silence = tuple()
 kw_isa_head = kw_isa_chain1_l1
@@ -24,20 +24,20 @@ kw_isa_chain1 = {kw_isa_chain1_l1: (
 kw_chains_isa = [kw_isa_chain1]
 
 
-kw_learn_chain1_l1 = ('c', 'cè¯­è¨€', 'ç¼–ç¨‹')
-kw_learn_chain2_l1 = ('é»‘å®¢', 'ä¿¡æ¯å®‰å…¨', 'å®‰å…¨', 'ä¿¡å®‰')
-kw_learn_chain3_l1 = ('çœ‹', 'è¯»', 'ç”¨', 'æ¨è')
+kw_learn_chain1_l1 = ('c', 'cÓïÑÔ', '±à³Ì')
+kw_learn_chain2_l1 = ('ºÚ¿Í', 'ĞÅÏ¢°²È«', '°²È«', 'ĞÅ°²')
+kw_learn_chain3_l1 = ('¿´', '¶Á', 'ÓÃ', 'ÍÆ¼ö')
 
-kw_learn_chain1_l2 = ('æ€ä¹ˆ', 'å¦‚ä½•', 'æ€æ ·', 'å’‹')
-kw_learn_chain2_l2 = ('æœ‰æ²¡æœ‰', 'å“ªäº›', 'ä»€ä¹ˆ', 'æœ‰å…³', 'å•¥')
-kw_learn_chain3_l2 = ('æƒ³', 'æ•™', 'è¦')
+kw_learn_chain1_l2 = ('ÔõÃ´', 'ÈçºÎ', 'ÔõÑù', 'Õ¦')
+kw_learn_chain2_l2 = ('ÓĞÃ»ÓĞ', 'ÄÄĞ©', 'Ê²Ã´', 'ÓĞ¹Ø', 'É¶')
+kw_learn_chain3_l2 = ('Ïë', '½Ì', 'Òª')
 
-kw_learn_chain1_l3 = ('å…¥é—¨', 'å­¦', 'å¼€å§‹')
-kw_learn_chain2_l3 = ('ä¹¦', 'æ•™æ', 'èµ„æ–™', 'æ–¹æ³•')
-kw_learn_chain3_l3 = ('æˆ‘', 'å½“', 'åš', 'æˆä¸º', 'æ')
+kw_learn_chain1_l3 = ('ÈëÃÅ', 'Ñ§', '¿ªÊ¼')
+kw_learn_chain2_l3 = ('Êé', '½Ì²Ä', '×ÊÁÏ', '·½·¨')
+kw_learn_chain3_l3 = ('ÎÒ', 'µ±', '×ö', '³ÉÎª', '¸ã')
 kw_learn_trigger = kw_learn_chain1_l1 + kw_learn_chain2_l1 + \
     kw_learn_chain2_l2 + kw_learn_chain1_l3 + kw_learn_chain2_l3
-kw_learn_silence = ('ä¸', 'æ‹’ç»', 'ç¦', 'åˆ«')
+kw_learn_silence = ('²»', '¾Ü¾ø', '½û', '±ğ')
 kw_learn_head = kw_learn_chain1_l1 + kw_learn_chain2_l1 + kw_learn_chain3_l1
 
 kw_learn_chain1 = {kw_learn_chain1_l1: (kw_learn_chain1_l2, kw_learn_chain2_l2), kw_learn_chain1_l2: (
@@ -49,17 +49,17 @@ kw_learn_chain3 = {kw_learn_chain3_l1: (kw_learn_chain2_l2,), kw_learn_chain2_l2
 kw_chains_learn = [kw_learn_chain1, kw_learn_chain2, kw_learn_chain3]
 
 
-kw_hack_chain1_l1 = ('æ—¥', 'é»‘', 'æ‹¿', 'å…¥ä¾µ', 'æ”»å‡»', 'æ‰«')
-kw_hack_chain2_l1 = ('æ‹–', 'æ‰«')
-kw_hack_chain3_l1 = ('ç›—',)
-kw_hack_chain4_l1 = ('åˆ·',)
-kw_hack_chain5_l1 = ('åˆ¶ä½œ', 'å†™', 'åš')
+kw_hack_chain1_l1 = ('ÈÕ', 'ºÚ', 'ÄÃ', 'ÈëÇÖ', '¹¥»÷', 'É¨')
+kw_hack_chain2_l1 = ('ÍÏ', 'É¨')
+kw_hack_chain3_l1 = ('µÁ',)
+kw_hack_chain4_l1 = ('Ë¢',)
+kw_hack_chain5_l1 = ('ÖÆ×÷', 'Ğ´', '×ö')
 
-kw_hack_chain1_l2 = ('ç«™', 'æ­ç”µ', 'å­¦æ ¡', 'å®˜ç½‘', 'hdu', 'è®ºå›', 'ç”µè„‘', 'æœåŠ¡å™¨')
-kw_hack_chain2_l2 = ('åº“', 'æ•°æ®', 'èµ„æ–™')
-kw_hack_chain3_l2 = ('q', 'å·')
-kw_hack_chain4_l2 = ('ä¼šå‘˜', 'é’»')
-kw_hack_chain5_l2 = ('æŒ‚',)
+kw_hack_chain1_l2 = ('Õ¾', 'º¼µç', 'Ñ§Ğ£', '¹ÙÍø', 'hdu', 'ÂÛÌ³', 'µçÄÔ', '·şÎñÆ÷')
+kw_hack_chain2_l2 = ('¿â', 'Êı¾İ', '×ÊÁÏ')
+kw_hack_chain3_l2 = ('q', 'ºÅ')
+kw_hack_chain4_l2 = ('»áÔ±', '×ê')
+kw_hack_chain5_l2 = ('¹Ò',)
 kw_hack_trigger = kw_hack_chain1_l2 + kw_hack_chain2_l2 + \
     kw_hack_chain3_l2 + kw_hack_chain4_l2 + kw_hack_chain5_l2 + kw_hack_chain1_l1
 kw_hack_silence = tuple()
@@ -74,19 +74,19 @@ kw_hack_chain5 = {kw_hack_chain5_l1: (kw_hack_chain5_l2,)}
 kw_chains_hack = [kw_hack_chain1, kw_hack_chain2,
                   kw_hack_chain3, kw_hack_chain4, kw_hack_chain5]
 
-kw_reg_chain1_l1 = ('æ‹›æ–°', 'æŠ¥å', 'æ³¨å†Œ', 'åŠ å…¥')
-kw_reg_chain1_l2 = ('æ€ä¹ˆ', 'å“ª')
-kw_reg_chain2_l2 = ('æœ‰', 'å', 'å¼€')
-kw_reg_chain2_l3 = ('åœ°å€', 'å—')
+kw_reg_chain1_l1 = ('ÕĞĞÂ', '±¨Ãû', '×¢²á', '¼ÓÈë')
+kw_reg_chain1_l2 = ('ÔõÃ´', 'ÄÄ')
+kw_reg_chain2_l2 = ('ÓĞ', '»µ', '¿ª')
+kw_reg_chain2_l3 = ('µØÖ·', 'Âğ')
 kw_reg_trigger = kw_reg_chain1_l1
-kw_reg_silence = ('è¿˜', 'å·²ç»', 'å¥½äº†', 'è¿‡', 'çš„è¯')
+kw_reg_silence = ('»¹', 'ÒÑ¾­', 'ºÃÁË', '¹ı', 'µÄ»°')
 kw_reg_head = kw_reg_chain1_l1
 
 kw_reg_chain1 = {kw_reg_chain1_l1: (
     kw_reg_chain1_l2, kw_reg_chain2_l2), kw_reg_chain2_l2: (kw_reg_chain2_l3,)}
 kw_chains_reg = [kw_reg_chain1]
 
-kw_dress_chain1_l1 = ('å¥³è£…')
+kw_dress_chain1_l1 = ('Å®×°')
 kw_dress_trigger = kw_dress_chain1_l1
 kw_dress_silence = tuple()
 kw_dress_head = kw_dress_chain1_l1

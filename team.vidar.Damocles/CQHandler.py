@@ -26,7 +26,6 @@ welcome_addional = ['Just hack for fun.', 'As we do, as you know', '我们的征
                     'dalao三连Ex：百度啊，百度呗，百度去，*百度你都不会吗？！', 'C语言入门我只服C Primer Plus', '欢迎来到炽热沙城', '上车吗？坦克车，ak带ak带队']
 
 
-
 htmlparser = HTMLParser.HTMLParser()
 
 
@@ -73,7 +72,8 @@ class CQHandler:
             if s[:8] == '[findkw]':
                 s = s[8:]
                 tracer = KeywordChain('learn')
-                CQSDK.SendPrivateMsg(407508177, escape('[ack]' + repr(tracer.check(s))))
+                CQSDK.SendPrivateMsg(407508177, escape(
+                    '[ack]' + repr(tracer.check(s))))
             if s[:5] == '[syn]':
                 s = s[5:]
                 CQSDK.SendPrivateMsg(407508177, escape('[ack]' + s))
@@ -89,7 +89,7 @@ class CQHandler:
             s = s[5:]
             CQSDK.SendGroupMsg(fromGroup, '[CQ:at,qq=%d]  %s' % (
                 fromQQ, escape('[ack]' + s)))
-        if s[:8] in ('[server]', '[SERVER]'):
+        elif s[:8] in ('[server]', '[SERVER]'):
             s = s[8:]
             try:
                 actions = server.handle_OnEvent_GroupMsg(subType, sendTime, u'%s' % (
@@ -104,6 +104,20 @@ class CQHandler:
                             exec(action.lstrip())
             except Exception, e:
                 CQSDK.AddLog(CQSDK.CQLOG_WARNING, 'RPCFAILED', escape(str(e)))
+        else:
+            sendmsg = '[CQ:at,qq=%d] ' % (fromQQ,)
+            if KeywordChain('learn').check(s):
+                sendmsg += "如果想入门的话，还是要以c语言为基础。\n至于学习c语言最有效的还是看C primer plus。http://t.cn/RCP5AgV \nPS: 最好不要看谭浩强，XX天精通或者是从入门到精通系列 [CQ:face,id=21]"
+            elif KeywordChain('hack').check(s):
+                sendmsg += "国家刑法第二百八十六条规定，\n关于恶意利用计算机犯罪相关条文对于违反国家规定，对计算机信息系统功能进行删除、修改、增加、干扰，造成计算机信息系统不能正常运行，后果严重的，处五年以下有期徒刑或者拘役；后果特别严重的，处五年以上有期徒刑。\n违反国家规定，对计算机信息系统中存储、处理或者传输的数据和应用程序进行删除、修改、增加的操作，后果严重的，依照前款的规定处罚。",
+            elif KeywordChain('isa').check(s):
+                sendmsg += " 如果你是想问信息安全协会地址的话。是在一教（信仁楼）111，或者一教三楼“一教卖热狗”，还有科技馆613。\n欢迎随时过来[CQ:face,id=21]"
+            elif KeywordChain('reg').check(s):
+                sendmsg += "线上的报名地址: http://reg.vidar.club/ ，纸质在面试的时候带过来。\n推荐线上报名o(*^▽^*)┛[CQ:face,id=21]"
+            elif KeywordChain('dress').check(s):
+                sendmsg += "我给你10分钟去准备好你的女装"
+                CQSDK.SetGroupBan(fromGroup,fromQQ,10*60)
+            CQSDK.SendGroupMsg(fromGroup,sendmsg)
 
     def OnEvent_DiscussMsg(self, subType, sendTime, fromDiscuss, fromQQ, msg, font):
         logging.info('OnEvent_DiscussMsg: subType={0}, sendTime={1}, fromDiscuss={2}, fromQQ={3}, msg={4}, font={5}'.format(

@@ -229,7 +229,8 @@ class CommandParser(CommandParserBase):
             if type(f) is type(CommandParserBase.default_action) and type(cmd) is type('str'):
                 def run_or_not(self, s):
                     gp = self._route_group[f]
-                    if gp is None or self.__fromQQ in gp:
+                    fromQQ = int(self.__fromQQ)
+                    if gp is None or fromQQ in gp:
                         return f(self, s)
                     else:
                         self._result = '你没权限执行这个命令'
