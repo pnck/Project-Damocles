@@ -89,7 +89,8 @@ class CommandParser(CommandParserBase):
                 print('RET:=> ', ret)
                 if ret:
                     sendmsg = '[CQ:at,qq=%s] %s' % (self._fromQQ, ret)
-                    s = 'CQSDK.SendGroupMsg(fromGroup,"{}")'.format(sendmsg)
+                    sendmsg = sendmsg.replace('"',r'\"').replace("'",r"\'")
+                    s = 'CQSDK.SendGroupMsg(fromGroup,{})'.format("'''"+sendmsg+"'''")
                     return (s,)
             return None
         finally:
