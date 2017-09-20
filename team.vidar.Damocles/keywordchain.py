@@ -90,11 +90,11 @@ kw_hack = (kw_hack_trigger, kw_hack_head, kw_chains_hack, kw_hack_silence)
 
 # reg
 kw_reg_chain1_l1 = (u'招新', u'报名', u'注册', u'加入')
-kw_reg_chain1_l2 = (u'怎么', u'哪')
+kw_reg_chain1_l2 = (u'怎么', u'哪',u'在')
 kw_reg_chain2_l2 = (u'有', u'坏', u'开')
-kw_reg_chain2_l3 = (u'地址', u'吗')
+kw_reg_chain2_l3 = (u'地址', u'线',u'吗')
 kw_reg_trigger = kw_reg_chain1_l1
-kw_reg_silence = (u'还', u'已经', u'好了', u'过', u'的话')
+kw_reg_silence = (u'还', u'已经', u'好了', u'过', u'的话',u'为什么',u'为啥',u'早')
 kw_reg_head = kw_reg_chain1_l1
 
 kw_reg_chain1 = {kw_reg_chain1_l1: (

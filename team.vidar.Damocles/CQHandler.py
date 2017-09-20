@@ -28,7 +28,7 @@ logging.basicConfig(
     filemode='a+'
 )
 
-welcome_addional = ['Just hack for fun.', 'As we do, as you know', '我们的征途是星辰大海', '萌新三连Ex：啥玩应啊？咋回事啊？那咋整啊？*大佬你会不会啊！',
+welcome_addional = ['执剑人是一个维持秩序的机器人，但受到阿库娅和佳子的加护，所以有时候叫它智减人','本工程源码在github搜Project-Damocles就能找得到','Just hack for fun.', 'As we do, as you know', '我们的征途是星辰大海', '萌新三连Ex：啥玩应啊？咋回事啊？那咋整啊？*大佬你会不会啊！',
                     'dalao三连Ex：百度啊，百度呗，百度去，*百度你都不会吗？！', 'C语言入门我只服C Primer Plus', '欢迎来到炽热沙城', '上车吗？坦克车，ak带ak带队']
 
 
@@ -63,7 +63,9 @@ def log_except(f):
         try:
             return f(*args, **kwargs)
         except Exception, e:
+            logging.warn('EXCEPTION=> '+str(e))
             CQSDK.AddLog(CQSDK.CQLOG_WARNING, 'EXCEPTION', escape(str(e)))
+            
     return wrapped
 
 
@@ -284,12 +286,13 @@ class CQHandler(object):
     def OnEvent_System_GroupMemberIncrease(self, subType, sendTime, fromGroup, fromQQ, beingOperateQQ):
         logging.info('OnEvent_System_GroupMemberIncrease: subType={0}, sendTime={1}, fromGroup={2}, fromQQ={3}, beingOperateQQ={4}'.format(
             subType, sendTime, fromGroup, fromQQ, beingOperateQQ))
-        seed(time.time())
-        i = int(random() * 1000) % len(welcome_addional)
-        sendmsg = '[CQ:at,qq=%d]' % (beingOperateQQ,)
-        sendmsg += "欢迎加入Vidar-Team2017届新生群\n请先阅读以下事项：\n1、协会官网: https://vidar.club \nwiki：https://wiki.vidar.club/doku.php \ndrops：https://drops.vidar.club/ \n2、为了让大家更好的相互了解，请先更改一下群名片。\n备注格式为17-专业-姓名\n3、如有任何疑问，请在群里艾特管理员提问 \n PS:  "
-        sendmsg += welcome_addional[i]
-        CQSDK.SendGroupMsg(fromGroup, sendmsg)
+        if int(fromGroup) == 650591057:
+            seed(time.time())
+            i = int(random() * 1000) % len(welcome_addional)
+            sendmsg = '[CQ:at,qq=%d]' % (beingOperateQQ,)
+            sendmsg += "欢迎加入Vidar-Team2017届新生群\n请先阅读以下事项：\n1、协会官网: https://vidar.club \nwiki：https://wiki.vidar.club/doku.php \ndrops：https://drops.vidar.club/ \n注册/报名地址: http://reg.vidar.club （注册/报名是一回事） \n2、为了让大家更好的相互了解，请先更改一下群名片。\n备注格式为17-专业-姓名\n3、如有任何疑问，请在群里艾特管理员提问 \n4、协会的wiki是众多前辈们的心得汇聚，请尽量认真浏览一遍 \n PS:  "
+            sendmsg += welcome_addional[i]
+            CQSDK.SendGroupMsg(fromGroup, sendmsg)
 
     def OnEvent_Friend_Add(self, subType, sendTime, fromQQ):
         logging.info('OnEvent_Friend_Add: subType={0}, sendTime={1}, fromQQ={2}'.format(
@@ -303,7 +306,7 @@ class CQHandler(object):
     def OnEvent_Request_AddGroup(self, subType, sendTime, fromGroup, fromQQ, msg, responseFlag):
         logging.info('OnEvent_Request_AddGroup: subType={0}, sendTime={1}, fromGroup={2}, fromQQ={3}, msg={4}, responseFlag={5}'.format(
             subType, sendTime, fromGroup, fromQQ, msg, responseFlag))
-        if subType == 1:
+        if int(fromGroup) == 650591057 and subType == 1:
             CQSDK.SetGroupAddRequestV2(
                 responseFlag, CQSDK.REQUEST_GROUPADD, CQSDK.REQUEST_ALLOW, '')
 
