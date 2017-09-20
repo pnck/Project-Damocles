@@ -1,5 +1,5 @@
-#!/usr/bin/env python3
-# coding:utf8
+#!/usr/bin/env python2
+# coding:gbk
 import inspect
 import functools
 import re
@@ -113,7 +113,7 @@ class CommandParser(CommandParserBase):
                     if gp is None or fromQQ in gp:
                         return f(self, s)
                     else:
-                        self._result = '浣犳病鏉冮檺鎵ц杩欎釜鍛戒护'
+                        self._result = '你没权限执行这个命令'
                         return None
 
                 CommandParserBase._route_group.update(
