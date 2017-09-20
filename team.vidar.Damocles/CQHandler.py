@@ -215,6 +215,20 @@ class CQHandler(object):
                         logging.warn('attempt to exec[%s]' % (action,))
                         exec(action.lstrip())
             return True
+        elif s[0] == '/':
+            parser = NativeCommandParser()
+            if parser.parse(fromQQ, s, fromGroup=fromGroup):
+                actions = parser.get_actions()
+                logging.warn('GOT %s ' % (actions,))
+                if type(actions) in (type(tuple()), type(list())):
+                    for action in actions:
+                        if type(action) is type(u'unicode'):
+                            action = action.encode('gbk')
+                        if type(action) is type('string'):
+                            logging.warn('attempt to exec[%s]' % (action,))
+                            exec(action.lstrip())
+                return True
+
         else:
             while True:
                 sendmsg = '[CQ:at,qq=%d] ' % (fromQQ,)
@@ -230,7 +244,7 @@ class CQHandler(object):
                     sendmsg += "我给你10分钟去准备好你的女装"
                     CQSDK.SetGroupBan(fromGroup, fromQQ, 10 * 60)
                 elif KeywordChain('duty').check(s):
-                    hour = time.localtime(time.time())
+                    hour = time.localtime(time.time()).tm_hour
                     if hour <= 6:
                         sendmsg += "这么早估计没什么人起来"
                     elif hour in range(7, 10):
