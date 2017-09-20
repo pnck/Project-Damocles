@@ -5,7 +5,6 @@
 import os
 import sys
 from random import seed, random
-from time import time
 import time
 import functools
 from commandparser import *
@@ -70,7 +69,7 @@ def log_except(f):
 
 class NativeCommandParser(CommandParser):
     def __init__(self):
-        super().__init__()
+        super(NativeCommandParser, self).__init__()
 
     @CommandParser.handle('/help', None)
     def on_help(self, s):
@@ -78,8 +77,9 @@ class NativeCommandParser(CommandParser):
         if not s:
             cmds = self._routes.copy()
             del cmds['default']
-            self._result = '可用命令: ' + \
-                '\\n'.join(repr(list(cmds.keys())).split(',')[1:-1])
+            self._result = '可用命令: \\n' + \
+                '\\n'.join(repr(list(cmds.keys())).split(
+                    ',')[1:-1]).replace("'", '')
             self._result += '\\n\\n可用help上下文: admin | owner | /xxxx(i.e. /开头的具体命令)'
             self._result += '\\n\\n要查看远程命令服务器支持的命令请输入 [server]/help '
         else:
@@ -95,19 +95,18 @@ class NativeCommandParser(CommandParser):
 
     @CommandParser.handle('/setname', ADMIN_GROUP)
     def on_setname(self, s):
-        try:
-            who, newname = self.get_args(s)[:2]
-            a1 = 'CQSDK.SetGroupCard(fromGroup,{0},"{1}")'.format(
-                who, newname)
+        s = s.strip()
+        who, newname = self.get_args(s)[:2]
+        who = str(who)
+        t = re.findall('(?<=\[CQ:at,qq=)\d+(?=\])', who)
+        if t:
+            who = t[0]
+        a1 = 'CQSDK.SetGroupCard(fromGroup,{0},{1})'.format(
+            who, "'''" + newname + "'''")
 
-            sendmsg = '[CQ:at,qq={0}] 你的群名片改了'.format(who)
-            a2 = 'CQSDK.SendGroupMsg(fromGroup,"{}")'.format(sendmsg)
-
-            self._ret_actions = (a1, a2)
-
-        except:
-            traceback.print_exc()
-            return False
+        sendmsg = '[CQ:at,qq={0}] 你的群名片改了'.format(who)
+        a2 = 'CQSDK.SendGroupMsg(fromGroup,"{}")'.format(sendmsg)
+        self._ret_actions = (a1, a2)
 
     @CommandParser.handle('/rejectme', NO_ONE_GROUP)
     def on_test1(self, s):
@@ -285,10 +284,10 @@ class CQHandler(object):
     def OnEvent_System_GroupMemberIncrease(self, subType, sendTime, fromGroup, fromQQ, beingOperateQQ):
         logging.info('OnEvent_System_GroupMemberIncrease: subType={0}, sendTime={1}, fromGroup={2}, fromQQ={3}, beingOperateQQ={4}'.format(
             subType, sendTime, fromGroup, fromQQ, beingOperateQQ))
-        seed(time())
+        seed(time.time())
         i = int(random() * 1000) % len(welcome_addional)
         sendmsg = '[CQ:at,qq=%d]' % (beingOperateQQ,)
-        sendmsg += "欢迎加入Vidar-Team2017届新生群\n请先阅读以下事项：\n1、协会官网: https://vidar.club \nwiki：https://wiki.vidar.club/doku.php \ndrops：https://drops.vidar.club/ \n2、为了让大家更好的相互了解，请先更改一下群名片。\n备注格式为17-专业-姓名\n3、如有任何疑问，请在群里艾特管理员提问 \n PS:"
+        sendmsg += "欢迎加入Vidar-Team2017届新生群\n请先阅读以下事项：\n1、协会官网: https://vidar.club \nwiki：https://wiki.vidar.club/doku.php \ndrops：https://drops.vidar.club/ \n2、为了让大家更好的相互了解，请先更改一下群名片。\n备注格式为17-专业-姓名\n3、如有任何疑问，请在群里艾特管理员提问 \n PS:  "
         sendmsg += welcome_addional[i]
         CQSDK.SendGroupMsg(fromGroup, sendmsg)
 
@@ -300,9 +299,13 @@ class CQHandler(object):
         logging.info('OnEvent_Request_AddFriend: subType={0}, sendTime={1}, fromQQ={2}, msg={3}, responseFlag={4}'.format(
             subType, sendTime, fromQQ, msg, responseFlag))
 
+    @log_except
     def OnEvent_Request_AddGroup(self, subType, sendTime, fromGroup, fromQQ, msg, responseFlag):
         logging.info('OnEvent_Request_AddGroup: subType={0}, sendTime={1}, fromGroup={2}, fromQQ={3}, msg={4}, responseFlag={5}'.format(
             subType, sendTime, fromGroup, fromQQ, msg, responseFlag))
+        if subType == 1:
+            CQSDK.SetGroupAddRequestV2(
+                responseFlag, CQSDK.REQUEST_GROUPADD, CQSDK.REQUEST_ALLOW, '')
 
     def OnEvent_Menu01(self):
         logging.info('OnEvent_Menu01')

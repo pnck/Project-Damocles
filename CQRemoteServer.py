@@ -82,9 +82,28 @@ class ServerCommandParser(CommandParser):
                 self._result = 'Available user group of {0} : {1}'.format(
                     a1, repr(self._route_group[self._routes[a1]])).replace(',)', ')').replace('None', 'All').replace('()', 'None')
 
+    @CommandParser.handle('/setname', ADMIN_GROUP)
+    def on_setname(self, s):
+        try:
+            who, newname = self.get_args(s)[:2]
+            who = str(who)
+            t = re.findall('(?<=\[CQ:at,qq=)\d+(?=\])', who)
+            if t:
+                who = t[0]
+            a1 = 'CQSDK.SetGroupCard(fromGroup,{0},{1})'.format(
+                who, "'''" + newname + "'''")
+
+            sendmsg = '[CQ:at,qq={0}] 你的群名片改了'.format(who)
+            a2 = 'CQSDK.SendGroupMsg(fromGroup,"{}")'.format(sendmsg)
+            self._ret_actions = (a1, a2)
+            print(a1, a2)
+        except:
+            traceback.print_exc()
+            return False
+
     @CommandParser.handle('/cmd', OWNER_GROUP)
     def on_cmd(self, s):
-        fromQQ = int(self.__fromQQ)
+        fromQQ = int(self._fromQQ)
         self._result = 'accepted,args[{}]'.format(','.join(self.get_args(s)))
 
     @CommandParser.handle('/createfile')

@@ -88,7 +88,7 @@ class CommandParser(CommandParserBase):
                 ret = self.result
                 print('RET:=> ', ret)
                 if ret:
-                    sendmsg = '[CQ:at,qq=%s] %s' % (self.__fromQQ, ret)
+                    sendmsg = '[CQ:at,qq=%s] %s' % (self._fromQQ, ret)
                     s = 'CQSDK.SendGroupMsg(fromGroup,"{}")'.format(sendmsg)
                     return (s,)
             return None
@@ -109,7 +109,7 @@ class CommandParser(CommandParserBase):
                 @functools.wraps(f)
                 def run_or_not(self, s):
                     gp = self._route_group[f]
-                    fromQQ = int(self.__fromQQ)
+                    fromQQ = int(self._fromQQ)
                     if gp is None or fromQQ in gp:
                         return f(self, s)
                     else:
@@ -144,12 +144,12 @@ class CommandParser(CommandParserBase):
         if self._route_to == 'default':  # still default,just return
             return False
 
-        self.__subtype = subtype
-        self.__sendTime = sendTime
-        self.__fromGroup = fromGroup
-        self.__fromDiscuss = fromDiscuss
-        self.__fromAnonymous = fromAnonymous
-        self.__fromQQ = fromQQ
+        self._subtype = subtype
+        self._sendTime = sendTime
+        self._fromGroup = fromGroup
+        self._fromDiscuss = fromDiscuss
+        self._fromAnonymous = fromAnonymous
+        self._fromQQ = fromQQ
 
         if fromGroup is not None:  # from group
             pass
