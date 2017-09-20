@@ -78,7 +78,7 @@ class NativeCommandParser(CommandParser):
         if not s:
             cmds = self._routes.copy()
             del cmds['default']
-            self._result = '????????: ' + \
+            self._result = '可用命令: ' + \
                 '\\n'.join(repr(list(cmds.keys())).split(',')[1:-1])
             self._result += '\\n\\n可用help上下文: admin | owner | /xxxx(i.e. /开头的具体命令)'
             self._result += '\\n\\n要查看远程命令服务器支持的命令请输入 [server]/help '

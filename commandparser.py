@@ -100,11 +100,13 @@ class CommandParser(CommandParserBase):
         super().__init__()
 
     # decorator
+    @staticmethod
     def handle(cmd, avaliable_group=OWNER_GROUP):
         print('decorator: adding cmd=' + str(cmd))
 
         def wrapped(f):
-            if type(f) is type(CommandParserBase.default_action) and type(cmd) is type('str'):
+            #if type(f) is type(CommandParserBase.default_action) and type(cmd) is type('str'):
+            if type(cmd) is type('str'):
                 @functools.wraps(f)
                 def run_or_not(self, s):
                     gp = self._route_group[f]
@@ -124,6 +126,7 @@ class CommandParser(CommandParserBase):
         return wrapped
 
     # decorator
+    @staticmethod
     def not_implemented(f):
         return CommandParserBase.not_implemented_action
 

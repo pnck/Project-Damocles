@@ -165,7 +165,7 @@ class KeywordChain(object):
     @noexcept
     def check(self, s):
         s = s.strip().lower().decode('gbk')
-        print 'checking=>',s.encode('gbk')
+        print ('checking=>',s.encode('gbk'))
         for w in self.__trigger:
             if s.find(w) >= 0:
                 break
