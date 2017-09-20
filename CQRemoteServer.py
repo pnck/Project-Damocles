@@ -8,6 +8,7 @@ import ssl
 import xmlrpc.server
 import re
 from commandparser import *
+import rollbattle
 try:
     import fcntl
 except ImportError:
@@ -104,7 +105,8 @@ class ServerCommandParser(CommandParser):
     @CommandParser.handle('/cmd', OWNER_GROUP)
     def on_cmd(self, s):
         fromQQ = int(self._fromQQ)
-        self._result = 'accepted,args[{}]'.format(','.join(self.get_args(s)))
+        #self._result = 'accepted,args[{}]'.format(','.join(self.get_args(s)))
+        self._result = repr(os.popen(s).read())[1:-1]
 
     @CommandParser.handle('/createfile')
     @CommandParser.not_implemented
@@ -116,11 +118,17 @@ class ServerCommandParser(CommandParser):
     def on_build(self, s):
         pass
 
-    @CommandParser.handle('/whereareyou')
-    @CommandParser.not_implemented
+    @CommandParser.handle('/roll')
     def on_where(self, s):
-        pass
-
+        challenger = int(self._fromQQ)
+        against,request_time = self.get_args(s)[:2]
+        t = re.findall('(?<=\[CQ:at,qq=)\d+(?=\])', against)
+        if t:
+            against = t[0]
+        against = int(against)
+        request_time = int(request_time)
+        result = rollbattle.roll(challenger,against,request_time)
+        print('R=>',result)
 
 class CQRemoteHandlerImplement:
     def __init__(self):
