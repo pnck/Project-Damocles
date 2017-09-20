@@ -1,9 +1,12 @@
 #!/usr/bin/env python2
 # -*- coding:gbk -*-
+# this file will be run on windows, please save as gbk encoding
+
 import os
 import sys
 from random import seed,random
 from time import time
+import functools
 
 reload(sys)
 sys.setdefaultencoding('gbk')
@@ -24,8 +27,8 @@ logging.basicConfig(
     filemode='a+'
 )
 
-welcome_addional = ['Just hack for fun.', 'As we do, as you know', 'æˆ‘ä»¬çš„å¾é€”æ˜¯æ˜Ÿè¾°å¤§æµ·', 'èŒæ–°ä¸‰è¿Exï¼šå•¥ç©åº”å•Šï¼Ÿå’‹å›äº‹å•Šï¼Ÿé‚£å’‹æ•´å•Šï¼Ÿ*å¤§ä½¬ä½ ä¼šä¸ä¼šå•Šï¼',
-                    'dalaoä¸‰è¿Exï¼šç™¾åº¦å•Šï¼Œç™¾åº¦å‘—ï¼Œç™¾åº¦å»ï¼Œ*ç™¾åº¦ä½ éƒ½ä¸ä¼šå—ï¼Ÿï¼', 'Cè¯­è¨€å…¥é—¨æˆ‘åªæœC Primer Plus', 'æ¬¢è¿æ¥åˆ°ç‚½çƒ­æ²™åŸ', 'ä¸Šè½¦å—ï¼Ÿå¦å…‹è½¦ï¼Œakå¸¦akå¸¦é˜Ÿ']
+welcome_addional = ['Just hack for fun.', 'As we do, as you know', 'ÎÒÃÇµÄÕ÷Í¾ÊÇĞÇ³½´óº£', 'ÃÈĞÂÈıÁ¬Ex£ºÉ¶ÍæÓ¦°¡£¿Õ¦»ØÊÂ°¡£¿ÄÇÕ¦Õû°¡£¿*´óÀĞÄã»á²»»á°¡£¡',
+                    'dalaoÈıÁ¬Ex£º°Ù¶È°¡£¬°Ù¶ÈßÂ£¬°Ù¶ÈÈ¥£¬*°Ù¶ÈÄã¶¼²»»áÂğ£¿£¡', 'CÓïÑÔÈëÃÅÎÒÖ»·şC Primer Plus', '»¶Ó­À´µ½³ãÈÈÉ³³Ç', 'ÉÏ³µÂğ£¿Ì¹¿Ë³µ£¬ak´øak´ø¶Ó']
 
 
 htmlparser = HTMLParser.HTMLParser()
@@ -53,6 +56,7 @@ except Exception:
     # sys.exit()
 
 def log_except(f):
+    @functools.wraps(f)
     def wrapped(*args,**kwargs):
         try:
             return f(*args,**kwargs)
@@ -90,6 +94,7 @@ class CQHandler:
             if s[:9] == '[forward]':
                 CQSDK.SendGroupMsg(
                     650591057, '&#91;forward from [CQ:at,qq=%d]&#93; %s' % (fromQQ, escape(s[9:])))
+        return False
     
     @log_except
     def OnEvent_GroupMsg(self, subType, sendTime, fromGroup, fromQQ, fromAnonymous, msg, font):
@@ -112,25 +117,26 @@ class CQHandler:
                     if type(action) is type('string'):
                         logging.warn('attempt to exec[%s]' % (action,))
                         exec(action.lstrip())
+            return True
         else:
             while True:
                 sendmsg = '[CQ:at,qq=%d] ' % (fromQQ,)
                 if KeywordChain('learn').check(s):
-                    sendmsg += "å¦‚æœæƒ³å…¥é—¨çš„è¯ï¼Œè¿˜æ˜¯è¦ä»¥cè¯­è¨€ä¸ºåŸºç¡€ã€‚\nè‡³äºå­¦ä¹ cè¯­è¨€æœ€æœ‰æ•ˆçš„è¿˜æ˜¯çœ‹C primer plusã€‚http://t.cn/RCP5AgV \nPS: æœ€å¥½ä¸è¦çœ‹è°­æµ©å¼ºï¼ŒXXå¤©ç²¾é€šæˆ–è€…æ˜¯ä»å…¥é—¨åˆ°ç²¾é€šç³»åˆ— [CQ:face,id=21]"
+                    sendmsg += "Èç¹ûÏëÈëÃÅµÄ»°£¬»¹ÊÇÒªÒÔcÓïÑÔÎª»ù´¡¡£\nÖÁÓÚÑ§Ï°cÓïÑÔ×îÓĞĞ§µÄ»¹ÊÇ¿´C primer plus¡£http://t.cn/RCP5AgV \nPS: ×îºÃ²»Òª¿´Ì·ºÆÇ¿£¬XXÌì¾«Í¨»òÕßÊÇ´ÓÈëÃÅµ½¾«Í¨ÏµÁĞ [CQ:face,id=21]"
                 elif KeywordChain('hack').check(s):
-                    sendmsg += "å›½å®¶åˆ‘æ³•ç¬¬äºŒç™¾å…«åå…­æ¡è§„å®šï¼Œ\nå…³äºæ¶æ„åˆ©ç”¨è®¡ç®—æœºçŠ¯ç½ªç›¸å…³æ¡æ–‡å¯¹äºè¿åå›½å®¶è§„å®šï¼Œå¯¹è®¡ç®—æœºä¿¡æ¯ç³»ç»ŸåŠŸèƒ½è¿›è¡Œåˆ é™¤ã€ä¿®æ”¹ã€å¢åŠ ã€å¹²æ‰°ï¼Œé€ æˆè®¡ç®—æœºä¿¡æ¯ç³»ç»Ÿä¸èƒ½æ­£å¸¸è¿è¡Œï¼Œåæœä¸¥é‡çš„ï¼Œå¤„äº”å¹´ä»¥ä¸‹æœ‰æœŸå¾’åˆ‘æˆ–è€…æ‹˜å½¹ï¼›åæœç‰¹åˆ«ä¸¥é‡çš„ï¼Œå¤„äº”å¹´ä»¥ä¸Šæœ‰æœŸå¾’åˆ‘ã€‚\nè¿åå›½å®¶è§„å®šï¼Œå¯¹è®¡ç®—æœºä¿¡æ¯ç³»ç»Ÿä¸­å­˜å‚¨ã€å¤„ç†æˆ–è€…ä¼ è¾“çš„æ•°æ®å’Œåº”ç”¨ç¨‹åºè¿›è¡Œåˆ é™¤ã€ä¿®æ”¹ã€å¢åŠ çš„æ“ä½œï¼Œåæœä¸¥é‡çš„ï¼Œä¾ç…§å‰æ¬¾çš„è§„å®šå¤„ç½šã€‚"
+                    sendmsg += "¹ú¼ÒĞÌ·¨µÚ¶ş°Ù°ËÊ®ÁùÌõ¹æ¶¨£¬\n¹ØÓÚ¶ñÒâÀûÓÃ¼ÆËã»ú·¸×ïÏà¹ØÌõÎÄ¶ÔÓÚÎ¥·´¹ú¼Ò¹æ¶¨£¬¶Ô¼ÆËã»úĞÅÏ¢ÏµÍ³¹¦ÄÜ½øĞĞÉ¾³ı¡¢ĞŞ¸Ä¡¢Ôö¼Ó¡¢¸ÉÈÅ£¬Ôì³É¼ÆËã»úĞÅÏ¢ÏµÍ³²»ÄÜÕı³£ÔËĞĞ£¬ºó¹ûÑÏÖØµÄ£¬´¦ÎåÄêÒÔÏÂÓĞÆÚÍ½ĞÌ»òÕß¾ĞÒÛ£»ºó¹ûÌØ±ğÑÏÖØµÄ£¬´¦ÎåÄêÒÔÉÏÓĞÆÚÍ½ĞÌ¡£\nÎ¥·´¹ú¼Ò¹æ¶¨£¬¶Ô¼ÆËã»úĞÅÏ¢ÏµÍ³ÖĞ´æ´¢¡¢´¦Àí»òÕß´«ÊäµÄÊı¾İºÍÓ¦ÓÃ³ÌĞò½øĞĞÉ¾³ı¡¢ĞŞ¸Ä¡¢Ôö¼ÓµÄ²Ù×÷£¬ºó¹ûÑÏÖØµÄ£¬ÒÀÕÕÇ°¿îµÄ¹æ¶¨´¦·£¡£"
                 elif KeywordChain('isa').check(s):
-                    sendmsg += " å¦‚æœä½ æ˜¯æƒ³é—®ä¿¡æ¯å®‰å…¨åä¼šåœ°å€çš„è¯ã€‚æ˜¯åœ¨ä¸€æ•™ï¼ˆä¿¡ä»æ¥¼ï¼‰111ï¼Œæˆ–è€…ä¸€æ•™ä¸‰æ¥¼â€œä¸€æ•™å–çƒ­ç‹—â€ï¼Œè¿˜æœ‰ç§‘æŠ€é¦†613ã€‚\næ¬¢è¿éšæ—¶è¿‡æ¥[CQ:face,id=21]"
+                    sendmsg += " Èç¹ûÄãÊÇÏëÎÊĞÅÏ¢°²È«Ğ­»áµØÖ·µÄ»°¡£ÊÇÔÚÒ»½Ì£¨ĞÅÈÊÂ¥£©111£¬»òÕßÒ»½ÌÈıÂ¥¡°Ò»½ÌÂôÈÈ¹·¡±£¬»¹ÓĞ¿Æ¼¼¹İ613¡£\n»¶Ó­ËæÊ±¹ıÀ´[CQ:face,id=21]"
                 elif KeywordChain('reg').check(s):
-                    sendmsg += "çº¿ä¸Šçš„æŠ¥ååœ°å€: http://reg.vidar.club/ ï¼Œçº¸è´¨åœ¨é¢è¯•çš„æ—¶å€™å¸¦è¿‡æ¥ã€‚\næ¨èçº¿ä¸ŠæŠ¥åo(*^â–½^*)â”›[CQ:face,id=21]"
+                    sendmsg += "ÏßÉÏµÄ±¨ÃûµØÖ·: http://reg.vidar.club/ £¬Ö½ÖÊÔÚÃæÊÔµÄÊ±ºò´ø¹ıÀ´¡£\nÍÆ¼öÏßÉÏ±¨Ãûo(*^¨Œ^*)©¿[CQ:face,id=21]"
                 elif KeywordChain('dress').check(s):
-                    sendmsg += "æˆ‘ç»™ä½ 10åˆ†é’Ÿå»å‡†å¤‡å¥½ä½ çš„å¥³è£…"
+                    sendmsg += "ÎÒ¸øÄã10·ÖÖÓÈ¥×¼±¸ºÃÄãµÄÅ®×°"
                     CQSDK.SetGroupBan(fromGroup,fromQQ,10*60)
                 else:
                     break
                 CQSDK.SendGroupMsg(fromGroup,sendmsg)
-                break
-        return True
+                return True
+        return False
         
         
     def OnEvent_DiscussMsg(self, subType, sendTime, fromDiscuss, fromQQ, msg, font):
@@ -153,7 +159,7 @@ class CQHandler:
         seed(time())
         i = int(random()*1000) % len(welcome_addional)
         sendmsg = '[CQ:at,qq=%d]' % (beingOperateQQ,)
-        sendmsg += "æ¬¢è¿åŠ å…¥Vidar-Team2017å±Šæ–°ç”Ÿç¾¤\nè¯·å…ˆé˜…è¯»ä»¥ä¸‹äº‹é¡¹ï¼š\n1ã€åä¼šå®˜ç½‘: https://vidar.club \nwikiï¼šhttps://wiki.vidar.club/doku.php \ndropsï¼šhttps://drops.vidar.club/ \n2ã€ä¸ºäº†è®©å¤§å®¶æ›´å¥½çš„ç›¸äº’äº†è§£ï¼Œè¯·å…ˆæ›´æ”¹ä¸€ä¸‹ç¾¤åç‰‡ã€‚\nå¤‡æ³¨æ ¼å¼ä¸º17-ä¸“ä¸š-å§“å\n3ã€å¦‚æœ‰ä»»ä½•ç–‘é—®ï¼Œè¯·åœ¨ç¾¤é‡Œè‰¾ç‰¹ç®¡ç†å‘˜æé—® \n PS:"
+        sendmsg += "»¶Ó­¼ÓÈëVidar-Team2017½ìĞÂÉúÈº\nÇëÏÈÔÄ¶ÁÒÔÏÂÊÂÏî£º\n1¡¢Ğ­»á¹ÙÍø: https://vidar.club \nwiki£ºhttps://wiki.vidar.club/doku.php \ndrops£ºhttps://drops.vidar.club/ \n2¡¢ÎªÁËÈÃ´ó¼Ò¸üºÃµÄÏà»¥ÁË½â£¬ÇëÏÈ¸ü¸ÄÒ»ÏÂÈºÃûÆ¬¡£\n±¸×¢¸ñÊ½Îª17-×¨Òµ-ĞÕÃû\n3¡¢ÈçÓĞÈÎºÎÒÉÎÊ£¬ÇëÔÚÈºÀï°¬ÌØ¹ÜÀíÔ±ÌáÎÊ \n PS:"
         sendmsg += welcome_addional[i]
         CQSDK.SendGroupMsg(fromGroup,sendmsg)
         

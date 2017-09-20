@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # -*- coding:gbk -*-
+# this file will be run on windows, please save as gbk encoding
 
 import traceback
 import functools
@@ -83,7 +84,7 @@ kw_reg_silence = ('还', '已经', '好了', '过', '的话')
 kw_reg_head = kw_reg_chain1_l1
 
 kw_reg_chain1 = {kw_reg_chain1_l1: (
-    kw_reg_chain1_l2, kw_reg_chain2_l2), kw_reg_chain2_l2: (kw_reg_chain2_l3,)}
+    kw_reg_chain1_l2, kw_reg_chain2_l2, kw_reg_chain2_l3), kw_reg_chain2_l2: (kw_reg_chain2_l3,)}
 kw_chains_reg = [kw_reg_chain1]
 
 kw_dress_chain1_l1 = ('女装')
