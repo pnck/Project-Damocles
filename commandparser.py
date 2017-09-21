@@ -32,7 +32,7 @@ class CommandParserBase(object):
             #print('s=>\t\t', s)
             n1 = s.find("'")
             n2 = s.find('"')
-            if n1 == 0 and n1 < n2:  # leading '
+            if n1 == 0 and (n2 < 0 or n1 < n2):  # leading '
                 t1 = re.search(r'''    '.+?'    '''.strip(), s)
                 l = list(s)
                 args.append(t1)
@@ -41,7 +41,7 @@ class CommandParserBase(object):
                 #print('AFTER-t1>\t', s)
                 continue
 
-            if n2 == 0 and n2 < n1:  # leading "
+            if n2 == 0 and (n1 < 0 or n2 < n1):  # leading "
                 t2 = re.search(r'''    ".+?"    '''.strip(), s)
                 l = list(s)
                 args.append(t2)

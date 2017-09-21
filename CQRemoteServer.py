@@ -108,6 +108,29 @@ class ServerCommandParser(CommandParser):
         #self._result = 'accepted,args[{}]'.format(','.join(self.get_args(s)))
         self._result = repr(os.popen(s).read())[1:-1]
 
+    @CommandParser.handle('/baidu',None)
+    def on_baidu(self,s):
+        from urllib.request import quote
+
+        args = self.get_args(s)
+        print('baidu=> ',args)
+        who = args[-1]
+        t = re.findall('(?<=\[CQ:at,qq=)\d+(?=\])', who)
+        if t:
+            who = t[0]
+        sends = '你要找的在这：\\n'
+        try:
+            who = int(who)
+            sends = ('[CQ:at,qq={}] '+sends).format(str(who))
+            args = args[:-1]
+        except:
+            sends = ('[CQ:at,qq={}] '+sends).format(str(self._fromQQ))
+
+        for tosearch in args:
+            url = 'http://cnm.buhuibaidu.me/?s=' + quote(tosearch)
+            sends += url+'\\n'
+        self._ret_actions =('CQSDK.SendGroupMsg(fromGroup,"{}")'.format(sends),)
+
     @CommandParser.handle('/createfile')
     @CommandParser.not_implemented
     def on_createfile(self, s):
