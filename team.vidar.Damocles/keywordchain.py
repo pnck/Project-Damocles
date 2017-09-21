@@ -34,11 +34,11 @@ kw_isa = (kw_isa_trigger, kw_isa_head, kw_chains_isa, kw_isa_silence)
 # learn
 kw_learn_chain1_l1 = (u'c', u'c语言', u'编程')
 kw_learn_chain2_l1 = (u'黑客', u'信息安全', u'安全', u'信安')
-kw_learn_chain3_l1 = ('看', '读', '用', '推荐')
+kw_learn_chain3_l1 = (u'看', u'读', u'用', u'推荐')
 
 kw_learn_chain1_l2 = (u'怎么', u'如何', u'怎样', u'咋')
 kw_learn_chain2_l2 = (u'有没有', u'哪些', u'什么', u'有关', u'啥')
-kw_learn_chain3_l2 = ('想', '教', '要')
+kw_learn_chain3_l2 = (u'想', u'教', u'要')
 
 kw_learn_chain1_l3 = (u'入门', u'学', u'开始')
 kw_learn_chain2_l3 = (u'书', u'教材', u'资料', u'方法')
@@ -120,18 +120,33 @@ kw_dress = (kw_dress_trigger, kw_dress_head, kw_chains_dress, kw_dress_silence)
 kw_duty_chain1_l1 = kw_isa_chain1_l2  # = ('协会', '安协', '实验室')
 kw_duty_chain1_l1 += (u'111', u'613', u'3楼')
 kw_duty_chain1_l2 = (u'有', u'在', u'值班')
+kw_duty_chain2_l2 = (u'开',)
 kw_duty_chain1_l3 = (u'人', u'学长', u'姐', u'大佬', u'dalao', u'谁')
+kw_duty_chain2_l3 = (u'了',u'门')
+kw_duty_chain1_l4 = (u'吗',u'不',u'？',u'?',u'有没有')
 kw_duty_trigger = kw_duty_chain1_l1
 kw_duty_head = kw_duty_chain1_l1
-kw_duty_silence = (u'不', u'没', u'走了')
+kw_duty_silence = (u'不清楚',u'不知道', u'没人', u'走了')
 kw_chains_duty = [{kw_duty_chain1_l1: (
-    kw_duty_chain1_l2,), kw_duty_chain1_l2: (kw_duty_chain1_l3,)}]
+    kw_duty_chain1_l2,), kw_duty_chain1_l2: (kw_duty_chain1_l3,),kw_duty_chain1_l3:(kw_duty_chain1_l4,)},{
+    kw_duty_chain1_l1:(kw_duty_chain2_l2,),kw_duty_chain2_l2:(kw_duty_chain2_l3,),kw_duty_chain2_l3:(kw_duty_chain1_l4,)}]
 kw_duty = (kw_duty_trigger, kw_duty_head, kw_chains_duty, kw_duty_silence)
 
 # ##
 # ###
 # ####
 # ######   DONT FORMAT THIS AREA
+
+import os
+import logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S',
+    filename=os.path.join(os.path.abspath(
+        os.path.dirname(__file__)), 'CQHanlder.log'),
+    filemode='w+'
+)
 
 
 def noexcept(f):
@@ -140,7 +155,7 @@ def noexcept(f):
         try:
             return f(*args, **kwargs)
         except:
-            traceback.print_exc()
+            logging.warn('=>  '+traceback.format_exc())
             return False
     return wrapped
 
@@ -165,7 +180,7 @@ class KeywordChain(object):
     @noexcept
     def check(self, s):
         s = s.strip().lower().decode('gbk')
-        print ('checking=>',s.encode('gbk'))
+        #print ('checking=>',s.encode('gbk'))
         for w in self.__trigger:
             if s.find(w) >= 0:
                 break
@@ -231,7 +246,7 @@ class KeywordChain(object):
                 for chain in self.__chains:
                     ret = ret or bool(
                         trace((trace_start_word,), chain.copy(), s))
-                    print('R=>', ret)
+                    #print('R=>', ret)
                     if ret:
                         break
                 if ret:

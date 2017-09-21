@@ -8,6 +8,7 @@ from random import seed, random
 import time
 import functools
 from commandparser import *
+import traceback
 
 reload(sys)
 sys.setdefaultencoding('gbk')
@@ -25,7 +26,7 @@ logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S',
     filename=os.path.join(os.path.abspath(
         os.path.dirname(__file__)), 'CQHanlder.log'),
-    filemode='a+'
+    filemode='w+'
 )
 
 welcome_addional = ['执剑人是一个维持秩序的机器人，但受到阿库娅和佳子的加护，所以有时候叫它智减人','本工程源码在github搜Project-Damocles就能找得到','Just hack for fun.', 'As we do, as you know', '我们的征途是星辰大海', '萌新三连Ex：啥玩应啊？咋回事啊？那咋整啊？*大佬你会不会啊！',
@@ -63,7 +64,7 @@ def log_except(f):
         try:
             return f(*args, **kwargs)
         except Exception, e:
-            logging.warn('EXCEPTION=> '+str(e))
+            logging.warn('EXCEPTION=> \n'+traceback.format_exc()+'\n\n'+str(e)+'\n')
             CQSDK.AddLog(CQSDK.CQLOG_WARNING, 'EXCEPTION', escape(str(e)))
             
     return wrapped
